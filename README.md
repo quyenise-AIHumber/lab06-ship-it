@@ -64,10 +64,13 @@ the saved Lab 05 model:
 - vehicle: courier assignment timing is not confirmed.
 - courier_months: courier identity may be unknown.
 
-The inference module can accept an optional missing
-prep_minutes input and issue a warning, but this field
-is not used by the saved model and is not shown in the
-five-feature dispatcher form.
+### Why `prep_minutes` is not imputed
+
+The `prep_minutes` feature was intentionally excluded from the Lab 05 model because actual preparation time may not be available when an order is placed, creating a risk of data leakage.
+
+Although Lab 06 supports `prep_minutes` as an optional validated input, it is not included in the DataFrame passed to the trained model. Therefore, **no median imputation is performed for `prep_minutes`**, and its value does not affect the predicted probability.
+
+Missing `prep_minutes` values are accepted. If the field is explicitly provided as `None`, the backend also generates a warning.
 
 The input ranges follow the lab requirements. Some accepted
 values are outside the most common values in the synthetic
@@ -151,3 +154,13 @@ human review and further real-world validation.
 
 Model performance and voucher costs should be monitored
 before any production deployment.
+
+### Optional `prep_minutes` validation limitation
+
+Although `prep_minutes` is not used for prediction, the Lab 06 backend validates it whenever a numeric value is provided.
+
+The accepted range is **1 to 60 minutes**. Values outside this range, such as `0`, `0.5`, or `61`, cause a `ValueError` even though they would not influence the model's prediction.
+
+This is a deliberate separation between input validation and model feature selection. However, it introduces a design trade-off: an unused optional field can prevent an otherwise valid order from being scored.
+
+The Gradio interface does not display this field because it is not required by the saved model.
