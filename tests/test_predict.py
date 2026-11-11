@@ -163,3 +163,11 @@ def test_model_loaded_once(monkeypatch, valid_order):
     fresh_module.predict_order(valid_order)
 
     assert len(calls) == 1
+
+
+@pytest.mark.parametrize("bad_value", [0, 0.5, 61])
+def test_invalid_prep_minutes(valid_order, bad_value):
+    order = {**valid_order, "prep_minutes": bad_value}
+
+    with pytest.raises(ValueError, match="prep_minutes"):
+        predict.predict_order(order)
